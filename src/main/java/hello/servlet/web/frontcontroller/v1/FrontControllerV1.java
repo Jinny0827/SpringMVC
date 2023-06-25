@@ -32,7 +32,44 @@ public class FrontControllerV1 extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        System.out.println("FrontControllerServletV1.service");
 
+        // /front-controller/v1/members/new-form 이 부분을 얻어 낼 수 있다.
+        String requestURI = request.getRequestURI();
 
+        // 파라미터 부분을 얻어내서 키로 사용하고 앞서 담아놓은 controllerMap 타입을 통해 값을 가져올 수 있다.
+        // 값을 controllerv1 타입으로 담아서 객체 생성
+        ControllerV1 controller = controllerMap.get(requestURI);
+
+        // 클라이언트의 요청 매핑이 없는 경우 예외처리
+        if(controller == null) {
+            // http의 응답 처리를 404(낫 파운드 = 없다) 처리해준다.
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+            // 요청의 값이 있다면
+            controller.process(request, response);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
