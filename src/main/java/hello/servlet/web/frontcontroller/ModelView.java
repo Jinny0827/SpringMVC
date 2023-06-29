@@ -3,6 +3,7 @@ package hello.servlet.web.frontcontroller;
 import java.util.Map;
 
 
+// 모델을 직접 생성해준다.
 public class ModelView {
 
     private String viewName;

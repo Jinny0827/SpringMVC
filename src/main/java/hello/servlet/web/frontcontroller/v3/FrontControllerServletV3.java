@@ -55,10 +55,12 @@ public class FrontControllerServletV3 extends HttpServlet {
         Map<String, String> paramMap = createParamMap(request);
 
         // process가 Map타입 매개변수이고 그것을 ModelView 타입 객체로 생성
+        // 요청 정보 - 경로와 데이터를 저장
         ModelView mv = controller.process(paramMap);
 
         // view를 해결해주는 viewResolver 생성
         // 요청자의 요청 경로를 논리적으로 가져온다.
+        // 경로와 데이터중 경로에 대한 정보를 객체화
         String viewName = mv.getViewName();
 
         // 물리적으로 요청 경로를 변환
