@@ -1,5 +1,7 @@
 package hello.servlet.web.frontcontroller.v5;
 
+import hello.servlet.web.frontcontroller.ModelView;
+import hello.servlet.web.frontcontroller.MyView;
 import hello.servlet.web.frontcontroller.v3.ControllerV3;
 import hello.servlet.web.frontcontroller.v3.controller.MemberFormControllerV3;
 import hello.servlet.web.frontcontroller.v3.controller.MemberListControllerV3;
@@ -42,15 +44,56 @@ public class FrontControllerServletV5 extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        // 핸들러(컨트롤러)를 찾는 로직이네
+        // 요청에 맞는 핸들러!
+        Object handler = getHandler(request);
+
+        if(handler == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        // 핸들러 어댑터를 통해 핸들러와 매칭시켜주는 것이네!
+        // 매칭이 되서 V3 컨트롤러의 기능컨트롤러가 있다면 adapter값으로 반환!
+        // 없다면 IllegalException을 통해 예외 반환!
+        // 핸들러 어댑터 찾아와
+        MyHandlerAdapter adapter = getHandlerAdapter(handler);
+
+        // 모델뷰 반환을 위해 adapter 객체를 통해
+        // handle 메서드 호출
+        ModelView mv = adapter.handle(request, response, handler);
+
+        // 논리경로명을 물리경로명(.jsp)로 만들기 위해서
+        // viewResolver 메서드를 가져와야한다.
+        String viewName = mv.getViewName();
+        MyView view = viewResolver(viewName);
+
+        // MyView를 통해서 렌더링
+        // 렌더링을 위한 render 메서드 완성
+        // getModel()을 통해 렌더링시 데이터도 담아서 렌더링
+        view.render(mv.getModel(), request, response);
+    }
+
+    private MyHandlerAdapter getHandlerAdapter(Object handler) {
+        // 요청자의 url 값을 가져와서
+        // 핸들러 어댑터에 있는 값인지 확인한다.
+        for (MyHandlerAdapter adapter : handlerAdapters) {
+            if(adapter.supports(handler)) {
+                // 핸들러(컨트롤러)를 지원할 수 있다면
+                // 참인 값을 a에 담아준다.
+                return adapter;
+            }
+        }
+        throw new IllegalArgumentException("handler-Adpater를 찾을 수 없습니다." + handler);
+    }
+
+    private Object getHandler(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
 
         // 반환 타입이 ControllerV3가 아닌 Object로 반환
         // requestURI의 키값이 /front-controller/v3/members/new-form 이면
         // value값은 new MemberFormControllerV3()로 반환
-        Object handler = handlerMappingMap.get(requestURI);
-
-
-
+       return handlerMappingMap.get(requestURI);
     }
 
     private void initHandlerAdapters() {
@@ -58,8 +101,13 @@ public class FrontControllerServletV5 extends HttpServlet {
     }
 
     private void initHandlerMappingMap() {
-        handlerMappingMap.put("/front-controller/v3/members/new-form", new MemberFormControllerV3());
-        handlerMappingMap.put("/front-controller/v3/members/save", new MemberSaveControllerV3());
-        handlerMappingMap.put("/front-controller/v3/members", new MemberListControllerV3());
+        handlerMappingMap.put("/front-controller/v5/v3/members/new-form", new MemberFormControllerV3());
+        handlerMappingMap.put("/front-controller/v5/v3/members/save", new MemberSaveControllerV3());
+        handlerMappingMap.put("/front-controller/v5/v3/members", new MemberListControllerV3());
+    }
+
+    private MyView viewResolver(String viewName) {
+        MyView view = new MyView("/WEB-INF/views/" + viewName + ".jsp");
+        return view;
     }
 }

@@ -32,6 +32,7 @@ public class ControllerV3HandlerAdapter implements MyHandlerAdapter {
         // 반환타입인 ModelView에 대입해서 경로명 반환
         // 현재 경로명은 Map 타입으로 ("경로명", request.getParameter -> 경로명)으로 지정
         // ModelView에서 경로와 모델(데이터)를 반환해주기 때문에 여기서 파라미터(경로)를 반환해준다.
+        // ControllerV3에서 해당하는 핸들러(컨트롤러)를 호출
         ModelView mv = controller.process(paramMap);
 
         return mv;
