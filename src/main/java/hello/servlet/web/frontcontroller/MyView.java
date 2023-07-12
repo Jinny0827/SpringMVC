@@ -22,6 +22,7 @@ public class MyView {
         // 렌더링 하는 로직
         RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
         dispatcher.forward(request, response);
+
     }
 
     // 렌더링 시 모델 값도 같이 넘겨준다.
